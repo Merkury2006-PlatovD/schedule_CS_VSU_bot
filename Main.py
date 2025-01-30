@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import time
 
@@ -7,7 +8,7 @@ import telebot
 import datetime
 from parser import ScheduleParser
 
-bot = telebot.TeleBot('6773922538:AAHofq03rczVw8e-F36XyyzhyZ52jkFO0Z0')
+bot = telebot.TeleBot(token=os.getenv("BOT_TOKEN"))
 
 conn = sqlite3.connect('database/bot_data.sql', check_same_thread=False)
 cursor = conn.cursor()
