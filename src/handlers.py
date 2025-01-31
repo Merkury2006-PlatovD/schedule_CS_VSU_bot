@@ -1,27 +1,14 @@
-from datetime import datetime
-
 import telebot
-from apscheduler.schedulers.background import BackgroundScheduler
 from telebot import TeleBot
-from parser import ScheduleParser
-from utils import get_subgroup_keyboard, get_group_keyboard, get_course_keyboard, get_persistent_keyboard
+
 from db_controller import DBController
+from errors.errors import ScheduleParserFindError
+from parser.excell_converter import ScheduleParser
+from utils import get_subgroup_keyboard, get_group_keyboard, get_course_keyboard, get_persistent_keyboard
+import config
 
 
 def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
-    def week_update():
-        global week
-        if week == 0:
-            week = 1
-        else:
-            week = 0
-        print(f"Обновлена неделя на {week}", datetime.now())
-
-    week = 0
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(week_update, 'cron', day_of_week='sat', hour=18, minute=0)
-    scheduler.start()
-
     def set_bot_commands_menu():
         bot.set_my_commands([
             telebot.types.BotCommand("start", "Начать работу с ботом"),
@@ -98,17 +85,23 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         user_id = message.from_user.id
         day = days_map[message.text]
         course, group, subgroup = DBController.get_user_data(user_id)
-        schedule = sch_parser.get_lessons_on_day(sch_parser.find_required_col(course, group, subgroup),
-                                                 day, week)
-        out_data_formated = f"📅 *Расписание занятий на {message.text.split(" ")[-1]}:*\n\n"
+        try:
+            schedule = sch_parser.get_lessons_on_day(sch_parser.find_required_col(course, group, subgroup),
+                                                     day, config.week)
 
-        for key, val in schedule.items():
-            if val is None or val.strip() == "":
-                val = "— Нет пары —"
+            out_data_formated = f"📅 *Расписание занятий на {message.text.split(" ")[-1]}:*\n\n"
 
-            out_data_formated += f"🕒 *{key}*\n📖 {val}\n\n"
+            for key, val in schedule.items():
+                if val is None or val.strip() == "":
+                    val = "— Нет пары —"
 
-        bot.send_message(user_id, out_data_formated, parse_mode="Markdown")
+                out_data_formated += f"🕒 *{key}*\n📖 {val}\n\n"
+
+            bot.send_message(user_id, out_data_formated, parse_mode="Markdown")
+        except ScheduleParserFindError as e:
+            handle_error(user_id, e,
+                         "❌ Мы не смогли найти учебную группу с вашими данными.\n🔍 Убедитесь, что вы правильно ввели все данные.\n💡 Попробуйте ввести их еще раз.")
+            handle_profile_update(message)
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("course_"))
     def handle_course(call):
@@ -136,3 +129,7 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         DBController.update_user(user_id, "subgroup", subgroup)
         bot.send_message(user_id, "Отлично! Данные сохранены.")
         bot.send_message(user_id, "На какой день тебе нужно расписание?", reply_markup=get_persistent_keyboard())
+
+    def handle_error(user_id, error_log, error_text=""):
+        error_text = f"⚠️Ошибка⚠️\n\n{error_text}\n\n{error_log}"
+        bot.send_message(user_id, error_text)

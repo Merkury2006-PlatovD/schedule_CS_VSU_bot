@@ -1,6 +1,8 @@
 import openpyxl
 from openpyxl.cell.cell import MergedCell
 
+from errors.errors import ScheduleParserFindError
+
 
 class ScheduleParser:
     time_lessons = ['8:00-9:35', '9:45-11:20', '11:30-13:05', '13:25-15:00',
@@ -31,7 +33,7 @@ class ScheduleParser:
                 if subgroup == 1:
                     return i + 1
                 subgroup -= 1
-        return -1
+        raise ScheduleParserFindError
 
     def get_lessons_on_day(self, column, day, week):
         time_lesson_gen = (x for x in self.time_lessons)

@@ -1,1 +1,0 @@
-from parser.excell_converter import ScheduleParser
