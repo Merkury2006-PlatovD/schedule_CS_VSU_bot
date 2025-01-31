@@ -14,7 +14,6 @@ conn = sqlite3.connect('database/bot_data.sql', check_same_thread=False)
 cursor = conn.cursor()
 sch_parser = ScheduleParser('schedule.xlsx')
 
-# Создание таблицы
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY,
@@ -24,7 +23,6 @@ CREATE TABLE IF NOT EXISTS users (
 );
 """)
 
-# Сохранение изменений и закрытие соединения
 conn.commit()
 
 
@@ -51,6 +49,7 @@ def get_user_data(user_id):
 # Запуск бота
 @bot.message_handler(commands=['start'])
 def handle_start(message):
+    set_bot_commands_menu()
     user_id = message.from_user.id
 
     if not user_exists(user_id):
@@ -68,6 +67,7 @@ def handle_profile_update(message):
         add_user(user_id)
     bot.send_message(user_id, "Привет! Выбери свой курс:", reply_markup=get_course_keyboard())
 
+
 @bot.message_handler(commands=['help'])
 def handle_help(message):
     bot.send_message(message.from_user.id, "Привет! Я помогу тебе с расписанием: \n"
@@ -75,22 +75,28 @@ def handle_help(message):
                                            "•  Напиши команду /updateinfo, чтобы изменить информацию о тебе\n"
                                            "•  Напиши команду /info, чтобы узнать краткую информацию о тебе.")
 
+
 @bot.message_handler(commands=['info'])
 def handle_help(message):
     user_id = message.from_user.id
     course, group, subgroup = get_user_data(user_id)
     bot.send_message(message.from_user.id, "Информация о тебе: \n"
-                                            f"Твой курс: {course}\n"
-                                            f"Твоя группа: {group}\n"
-                                            f"Твоя подгруппа: {subgroup}")
+                                           f"Твой курс: {course}\n"
+                                           f"Твоя группа: {group}\n"
+                                           f"Твоя подгруппа: {subgroup}")
 
-@bot.message_handler(func=lambda message: message.text not in ["📅 Понедельник", "📅 Вторник", "📅 Среда", "📅 Четверг", "📅 Пятница", "📅 Суббота"])
+
+@bot.message_handler(
+    func=lambda message: message.text not in ["📅 Понедельник", "📅 Вторник", "📅 Среда", "📅 Четверг", "📅 Пятница",
+                                              "📅 Суббота"])
 def handle_error_message(message):
     user_id = message.from_user.id
     bot.send_message(user_id, "Привет! Напиши /start для запуска бота или /help для более подробной информации")
 
 
-@bot.message_handler(func=lambda message: message.text in ["📅 Понедельник", "📅 Вторник", "📅 Среда", "📅 Четверг", "📅 Пятница", "📅 Суббота"])
+@bot.message_handler(
+    func=lambda message: message.text in ["📅 Понедельник", "📅 Вторник", "📅 Среда", "📅 Четверг", "📅 Пятница",
+                                          "📅 Суббота"])
 def handle_schedule_request(message):
     days_map = {"📅 Понедельник": 0, "📅 Вторник": 1, "📅 Среда": 2, "📅 Четверг": 3, "📅 Пятница": 4, "📅 Суббота": 5}
     user_id = message.from_user.id
@@ -98,7 +104,7 @@ def handle_schedule_request(message):
     course, group, subgroup = get_user_data(user_id)
     schedule = sch_parser.get_lessons_on_day(sch_parser.find_required_col(course, group, subgroup),
                                              day, week)
-    out_data_formated = "📅 *Расписание занятий:*\n\n"
+    out_data_formated = f"📅 *Расписание занятий на {message.text.split(" ")[-1]}:*\n\n"
 
     for key, val in schedule.items():
         if val is None or val.strip() == "":
@@ -161,8 +167,10 @@ def get_course_keyboard():
 
 def get_group_keyboard():
     keyboard = types.InlineKeyboardMarkup()
-    for i in range(1, 18):
-        keyboard.add(types.InlineKeyboardButton(text=str(i), callback_data=f"group_{i}"))
+    for i in range(1, 18, 3):
+        keyboard.add(types.InlineKeyboardButton(text=str(i), callback_data=f"group_{i}"),
+                     types.InlineKeyboardButton(text=str(i + 1), callback_data=f"group_{i + 1}"),
+                     types.InlineKeyboardButton(text=str(i + 2), callback_data=f"group_{i + 2}"))
     return keyboard
 
 
@@ -171,6 +179,15 @@ def get_subgroup_keyboard():
     keyboard.add(types.InlineKeyboardButton(text="1", callback_data="subgroup_1"))
     keyboard.add(types.InlineKeyboardButton(text="2", callback_data="subgroup_2"))
     return keyboard
+
+
+def set_bot_commands_menu():
+    bot.set_my_commands([
+        telebot.types.BotCommand("start", "Начать работу с ботом"),
+        telebot.types.BotCommand("help", "Получить помощь"),
+        telebot.types.BotCommand("info", "Узнать информацию о себе"),
+        telebot.types.BotCommand("updateinfo", "Поменять информацию о себе")
+    ])
 
 
 def week_update():
