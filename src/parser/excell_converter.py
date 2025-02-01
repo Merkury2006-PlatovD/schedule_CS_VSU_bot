@@ -1,4 +1,5 @@
 import openpyxl
+import re
 from openpyxl.cell.cell import MergedCell
 
 from errors.errors import ScheduleParserFindError
@@ -22,16 +23,23 @@ class ScheduleParser:
 
     def _parse_headers(self):
         headers = []
-        for row in self.sheet.iter_rows(max_row=3):
-            values = [self._get_merged_cell_value(cell) for cell in row]
+        for row in self.sheet.iter_rows(max_row=2, min_col=3):
+            values = []
+            for cell in row:
+                val = self._get_merged_cell_value(cell)
+                matcher = re.search(r"\d+", val)
+                if matcher is not None:
+                    values.append(matcher.group())
+                else:
+                    values.append("NN")
             headers.append(values)
         return headers
 
     def find_required_col(self, course, group, subgroup):
         for i in range(len(self.all_courses[0])):
-            if self.all_courses[0][i] == f"{course} курс" and self.all_courses[1][i] == f"{group} группа":
+            if self.all_courses[0][i] == str(course) and self.all_courses[1][i] == str(group):
                 if subgroup == 1:
-                    return i + 1
+                    return i + 3  # плюсую значение чтобы дойти до нужного столбца тк первые два столбца с днями недели и временем ну и индексация с нуля
                 subgroup -= 1
         raise ScheduleParserFindError
 
