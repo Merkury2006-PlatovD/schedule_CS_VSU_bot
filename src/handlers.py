@@ -4,7 +4,7 @@ from telebot import TeleBot
 from db_controller import DBController
 from errors.errors import ScheduleParserFindError
 from parser.excell_converter import ScheduleParser
-from utils import get_subgroup_keyboard, get_group_keyboard, get_course_keyboard, get_persistent_keyboard, \
+from keyboard_generators import get_subgroup_keyboard, get_group_keyboard, get_course_keyboard, get_persistent_keyboard, \
     get_mistake_report_keyboard
 import config
 
@@ -98,7 +98,7 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
             schedule = sch_parser.get_lessons_on_day(sch_parser.find_required_col(course, group, subgroup),
                                                      day, config.week)
 
-            out_data_formated = f"📅 *Расписание занятий на {message.text.split(" ")[-1]}:*\n\n"
+            out_data_formated = f"📅 *Расписание занятий на {message.text.split(' ')[-1]}/{'числ' if config.week == 0 else 'знам'}:*\n\n"
 
             for key, val in schedule.items():
                 if val is None or val.strip() == "":
@@ -143,7 +143,8 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
     def handle_report_send(call):
         if call.data.split("_")[-1] == "1":
             course, group, subgroup = DBController.get_user_data(call.from_user.id)
-            bot.send_message(5109041126, f"Ошибка в расписании у курс: {course}, группа: {group}, подгруппа: {subgroup}")
+            bot.send_message(5109041126,
+                             f"Ошибка в расписании у курс: {course}, группа: {group}, подгруппа: {subgroup}")
             print(f"Ошибка в расписании у курс: {course}, группа: {group}, подгруппа: {subgroup}")
         else:
             bot.send_message(call.from_user.id, "Рады, что все работает хорошо)")
