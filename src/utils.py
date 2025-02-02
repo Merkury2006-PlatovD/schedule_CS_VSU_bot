@@ -30,6 +30,13 @@ def get_group_keyboard():
     return keyboard
 
 
+def get_mistake_report_keyboard():
+    keyboard = types.InlineKeyboardMarkup()
+    keyboard.add(types.InlineKeyboardButton(text="Подтверждаю", callback_data="mistake_1"),
+                 types.InlineKeyboardButton(text="Не подтверждаю", callback_data="mistake_0"))
+    return keyboard
+
+
 def get_subgroup_keyboard():
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(types.InlineKeyboardButton(text="1", callback_data="subgroup_1"))

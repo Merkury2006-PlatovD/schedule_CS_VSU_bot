@@ -4,7 +4,8 @@ from telebot import TeleBot
 from db_controller import DBController
 from errors.errors import ScheduleParserFindError
 from parser.excell_converter import ScheduleParser
-from utils import get_subgroup_keyboard, get_group_keyboard, get_course_keyboard, get_persistent_keyboard
+from utils import get_subgroup_keyboard, get_group_keyboard, get_course_keyboard, get_persistent_keyboard, \
+    get_mistake_report_keyboard
 import config
 
 
@@ -14,7 +15,8 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
             telebot.types.BotCommand("start", "Начать работу с ботом"),
             telebot.types.BotCommand("help", "Получить помощь"),
             telebot.types.BotCommand("info", "Узнать информацию о себе"),
-            telebot.types.BotCommand("updateinfo", "Поменять информацию о себе")
+            telebot.types.BotCommand("updateinfo", "Поменять информацию о себе"),
+            telebot.types.BotCommand("mistake", "Сообщить об ошибке в расписании")
         ])
 
     @bot.message_handler(commands=['start'])
@@ -59,7 +61,8 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         bot.send_message(message.from_user.id, "Привет! Я помогу тебе с расписанием: \n"
                                                "•  Напиши команду /start, чтобы я узнал информацию о тебе и твоем расписании\n"
                                                "•  Напиши команду /updateinfo, чтобы изменить информацию о тебе\n"
-                                               "•  Напиши команду /info, чтобы узнать краткую информацию о тебе.")
+                                               "•  Напиши команду /info, чтобы узнать краткую информацию о тебе\n"
+                                               "•  Напиши команду /mistake, чтобы отправить отчет о неправильном расписании")
 
     @bot.message_handler(commands=['info'])
     def handle_help(message):
@@ -69,6 +72,12 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
                                                f"Твой курс: {course}\n"
                                                f"Твоя группа: {group}\n"
                                                f"Твоя подгруппа: {subgroup}")
+
+    @bot.message_handler(commands=['mistake'])
+    def handle_mistake_report(message):
+        bot.send_message(message.from_user.id,
+                         "Подтвердите факт ошибки в расписании. Если ошибок нет, просим вас не создавать нам лишней работы!",
+                         reply_markup=get_mistake_report_keyboard())
 
     @bot.message_handler(
         func=lambda message: message.text not in ["📅 Понедельник", "📅 Вторник", "📅 Среда", "📅 Четверг", "📅 Пятница",
@@ -124,11 +133,20 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
     @bot.callback_query_handler(func=lambda call: call.data.startswith("subgroup_"))
     def handle_subgroup(call):
         user_id = call.from_user.id
-        subgroup = int(call.data.split("_")[1])
+        subgroup = int(call.data.split("_")[-1])
 
         DBController.update_user(user_id, "subgroup", subgroup)
         bot.send_message(user_id, "Отлично! Данные сохранены.")
         bot.send_message(user_id, "На какой день тебе нужно расписание?", reply_markup=get_persistent_keyboard())
+
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("mistake"))
+    def handle_report_send(call):
+        if call.data.split("_")[-1] == "1":
+            course, group, subgroup = DBController.get_user_data(call.from_user.id)
+            bot.send_message(5109041126, f"Ошибка в расписании у курс: {course}, группа: {group}, подгруппа: {subgroup}")
+            print(f"Ошибка в расписании у курс: {course}, группа: {group}, подгруппа: {subgroup}")
+        else:
+            bot.send_message(call.from_user.id, "Рады, что все работает хорошо)")
 
     def handle_error(user_id, error_log, error_text=""):
         error_text = f"⚠️Ошибка⚠️\n\n{error_text}\n\n{error_log}"
