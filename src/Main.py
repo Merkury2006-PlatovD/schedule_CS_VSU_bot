@@ -6,7 +6,7 @@ import telebot
 from db_controller import DBController
 from handlers import register_handlers
 from parser.excell_converter import ScheduleParser
-from src.week_updater import start_week_updating
+from week_updater import start_week_updating
 
 # токен бота
 bot = telebot.TeleBot(token=os.getenv("BOT_TOKEN"))
