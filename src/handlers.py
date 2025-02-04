@@ -146,6 +146,8 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
             bot.send_message(5109041126,
                              f"Ошибка в расписании у курс: {course}, группа: {group}, подгруппа: {subgroup}")
             print(f"Ошибка в расписании у курс: {course}, группа: {group}, подгруппа: {subgroup}")
+            bot.send_message(call.from_user.id,
+                             "Спасибо! Ваша жалоба успешно отправлена, и мои разработчики рассмотрят её в ближайшее время.")
         else:
             bot.send_message(call.from_user.id, "Рады, что все работает хорошо)")
 
