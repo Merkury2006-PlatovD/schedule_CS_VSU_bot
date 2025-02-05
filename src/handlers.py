@@ -104,7 +104,7 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
     def handle_schedule_request(message):
         days_map = {"📅 Понедельник": 0, "📅 Вторник": 1, "📅 Среда": 2, "📅 Четверг": 3, "📅 Пятница": 4, "📅 Суббота": 5}
         user_id = message.from_user.id
-        print(f"Запрос от {user_id}")
+        print(f"Запрос от {user_id}: {message.from_user.username}")
         config.users_per_day += 1
         day = days_map[message.text]
         course, group, subgroup = DBController.get_user_data(user_id)
