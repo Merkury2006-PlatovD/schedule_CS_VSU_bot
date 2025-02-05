@@ -92,6 +92,8 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
     def handle_schedule_request(message):
         days_map = {"📅 Понедельник": 0, "📅 Вторник": 1, "📅 Среда": 2, "📅 Четверг": 3, "📅 Пятница": 4, "📅 Суббота": 5}
         user_id = message.from_user.id
+        print(f"Запрос от {user_id}")
+        config.users_per_day += 1
         day = days_map[message.text]
         course, group, subgroup = DBController.get_user_data(user_id)
         try:
@@ -109,7 +111,7 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
             bot.send_message(user_id, out_data_formated, parse_mode="Markdown")
         except ScheduleParserFindError as e:
             handle_error(user_id, e,
-                         "❌ Мы не смогли найти учебную группу с вашими данными.\n🔍 Убедитесь, что вы правильно ввели все данные.\n💡 Попробуйте ввести их еще раз.")
+                         "Возможно ошибка связана с обновлением на сервере. В таком случае просим Вас просто заново ввести данные. Мы сделам все возможное, чтобы это не повторилось.\n\n❌ Мы не смогли найти учебную группу с вашими данными.\n🔍 Убедитесь, что вы правильно ввели все данные.\n💡 Попробуйте ввести их еще раз.")
             handle_profile_update(message)
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("course_"))

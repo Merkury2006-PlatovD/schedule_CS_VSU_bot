@@ -6,13 +6,16 @@ import telebot
 from db_controller import DBController
 from handlers import register_handlers
 from parser.excell_converter import ScheduleParser
-from week_updater import start_week_updating
+from updaters import start_week_updating
 
 # токен бота
 bot = telebot.TeleBot(token=os.getenv("BOT_TOKEN"))
-# создание парсера
+volume_path = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "/src/database")
+db_path = os.path.join(volume_path, "bot_data.sql")
+
+DBController.start_db_control(db_path)
+
 sch_parser = ScheduleParser('src/parser/schedule.xlsx')
-DBController.start_db_control(os.path.join(os.getenv("RAILWAY_VOLUME_MOUNT_PATH"), "bot_data.sql"))
 register_handlers(bot, sch_parser)
 
 start_week_updating()
