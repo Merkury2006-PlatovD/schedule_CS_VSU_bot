@@ -84,11 +84,12 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
     # специальные хэндлеры для использования администратором
     @bot.message_handler(commands=['getDB'])
     def get_database(message):
-        try:
-            with open(config.db_path, "rb") as db_file:
-                bot.send_document(int(os.getenv("ADMIN_TG_ID1")), db_file, caption="Вот твоя база данных 📂")
-        except FileNotFoundError:
-            bot.reply_to(message, "Файл базы данных не найден! ❌")
+        if str(message.from_user.id) in [os.getenv("ADMIN_TG_ID1"), os.getenv("ADMIN_TG_ID2")]:
+            try:
+                with open(config.db_path, "rb") as db_file:
+                    bot.send_document(message.from_user.id, db_file, caption="Вот твоя база данных 📂")
+            except FileNotFoundError:
+                bot.reply_to(message, "Файл базы данных не найден! ❌")
 
     @bot.message_handler(
         func=lambda message: message.text not in ["📅 Понедельник", "📅 Вторник", "📅 Среда", "📅 Четверг", "📅 Пятница",
@@ -120,7 +121,7 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
                 out_data_formated += f"🕒 *{key}*\n📖 {val}\n\n"
 
             bot.send_message(user_id, out_data_formated, parse_mode="Markdown")
-        except ScheduleParserFindError as e:
+        except (ScheduleParserFindError, TypeError) as e:
             handle_error(user_id, e,
                          "Возможно ошибка связана с обновлением на сервере. В таком случае просим Вас просто заново ввести данные. Мы сделам все возможное, чтобы это не повторилось.\n\n❌ Мы не смогли найти учебную группу с вашими данными.\n🔍 Убедитесь, что вы правильно ввели все данные.\n💡 Попробуйте ввести их еще раз.")
             handle_profile_update(message)
