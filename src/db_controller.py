@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 
@@ -7,6 +8,8 @@ class DBController:
 
     @classmethod
     def start_db_control(cls, db_path):
+        db_dir = os.path.dirname(db_path)
+        os.makedirs(db_dir, exist_ok=True)
         # подключение к БД
         cls.conn = sqlite3.connect(db_path, check_same_thread=False)
         cls.cursor = cls.conn.cursor()

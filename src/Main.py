@@ -12,7 +12,7 @@ from week_updater import start_week_updating
 bot = telebot.TeleBot(token=os.getenv("BOT_TOKEN"))
 # создание парсера
 sch_parser = ScheduleParser('src/parser/schedule.xlsx')
-DBController.start_db_control('src/database/bot_data.sql')
+DBController.start_db_control(os.path.join(os.getenv("RAILWAY_VOLUME_MOUNT_PATH"), "bot_data.sql"))
 register_handlers(bot, sch_parser)
 
 start_week_updating()
