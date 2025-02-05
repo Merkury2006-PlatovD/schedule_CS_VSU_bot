@@ -1,3 +1,5 @@
+import os
+
 import telebot
 from telebot import TeleBot
 
@@ -78,6 +80,15 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         bot.send_message(message.from_user.id,
                          "Подтвердите факт ошибки в расписании. Если ошибок нет, просим вас не создавать нам лишней работы!",
                          reply_markup=get_mistake_report_keyboard())
+
+    # специальные хэндлеры для использования администратором
+    @bot.message_handler(commands=['getDB'])
+    def get_database(message):
+        try:
+            with open(config.db_path, "rb") as db_file:
+                bot.send_document(int(os.getenv("ADMIN_TG_ID1")), db_file, caption="Вот твоя база данных 📂")
+        except FileNotFoundError:
+            bot.reply_to(message, "Файл базы данных не найден! ❌")
 
     @bot.message_handler(
         func=lambda message: message.text not in ["📅 Понедельник", "📅 Вторник", "📅 Среда", "📅 Четверг", "📅 Пятница",

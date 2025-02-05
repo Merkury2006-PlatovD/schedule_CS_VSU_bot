@@ -3,22 +3,26 @@ import time
 
 import telebot
 
+import config
 from db_controller import DBController
 from handlers import register_handlers
 from parser.excell_converter import ScheduleParser
-from updaters import start_week_updating
+from updaters import start_week_updating, start_users_monitoring
 
 # токен бота
 bot = telebot.TeleBot(token=os.getenv("BOT_TOKEN"))
-volume_path = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "/src/database") # путь к volume
-db_path = os.path.join(volume_path, "bot_data.sql")
 
-DBController.start_db_control(db_path)
+# подключение бд
 
+DBController.start_db_control(config.db_path)
+
+# создание парсера и подключение хэндлеров к боту
 sch_parser = ScheduleParser('src/parser/schedule.xlsx')
 register_handlers(bot, sch_parser)
 
+# старт обновлений состояний переменных из config
 start_week_updating()
+start_users_monitoring()
 
 
 def main():
