@@ -10,7 +10,7 @@ from updaters import start_week_updating
 
 # токен бота
 bot = telebot.TeleBot(token=os.getenv("BOT_TOKEN"))
-volume_path = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "/src/database")
+volume_path = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "/src/database") # путь к volume
 db_path = os.path.join(volume_path, "bot_data.sql")
 
 DBController.start_db_control(db_path)
