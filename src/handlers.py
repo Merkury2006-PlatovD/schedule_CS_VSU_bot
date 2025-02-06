@@ -107,8 +107,9 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         print(f"Запрос от {user_id}: {message.from_user.username}")
         config.users_per_day += 1
         day = days_map[message.text]
-        course, group, subgroup = DBController.get_user_data(user_id)
         try:
+            course, group, subgroup = DBController.get_user_data(user_id)
+
             schedule = sch_parser.get_lessons_on_day(sch_parser.find_required_col(course, group, subgroup),
                                                      day, config.week)
 
@@ -121,7 +122,7 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
                 out_data_formated += f"🕒 *{key}*\n📖 {val}\n\n"
 
             bot.send_message(user_id, out_data_formated, parse_mode="Markdown")
-        except (ScheduleParserFindError, TypeError) as e:
+        except (ScheduleParserFindError, TypeError, ValueError) as e:
             handle_error(user_id, e,
                          "Возможно ошибка связана с обновлением на сервере. В таком случае просим Вас просто заново ввести данные. Мы сделам все возможное, чтобы это не повторилось.\n\n❌ Мы не смогли найти учебную группу с вашими данными.\n🔍 Убедитесь, что вы правильно ввели все данные.\n💡 Попробуйте ввести их еще раз.")
             handle_profile_update(message)
