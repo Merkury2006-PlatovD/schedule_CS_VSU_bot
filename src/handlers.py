@@ -107,8 +107,9 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         print(f"Запрос от {user_id}: {message.from_user.username}")
         config.users_per_day += 1
         day = days_map[message.text]
-        course, group, subgroup = DBController.get_user_data(user_id)
         try:
+            course, group, subgroup = DBController.get_user_data(user_id)
+
             schedule = sch_parser.get_lessons_on_day(sch_parser.find_required_col(course, group, subgroup),
                                                      day, config.week)
 
