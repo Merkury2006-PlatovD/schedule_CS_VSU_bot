@@ -14,6 +14,7 @@ class DBController:
         cls.conn = sqlite3.connect(db_path, check_same_thread=False)
         cls.cursor = cls.conn.cursor()
 
+
         # создание таблицы в БД при первом включении
         cls.cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (

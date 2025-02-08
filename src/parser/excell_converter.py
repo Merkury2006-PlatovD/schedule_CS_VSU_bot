@@ -1,8 +1,7 @@
 import openpyxl
 import re
 from openpyxl.cell.cell import MergedCell
-
-from errors.errors import ScheduleParserFindError
+from src.errors.errors import ScheduleParserFindError
 
 
 class ScheduleParser:
