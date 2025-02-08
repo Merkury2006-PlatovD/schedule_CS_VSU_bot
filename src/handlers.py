@@ -95,56 +95,24 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
             except FileNotFoundError:
                 bot.reply_to(message, "Файл базы данных не найден! ❌")
 
-    @bot.message_handler(commands=['znam'])
-    def get_znam_rasp(message):
-        user_id = message.from_user.id
-        print(f"Запрос от {user_id}: {message.from_user.username}")
-        config.users_per_day += 1
-
-        if not DBController.user_exists(user_id):
-            DBController.add_user(user_id)
-            bot.send_message(user_id, "Привет! Выбери свой курс:", reply_markup=get_course_keyboard())
-        else:
-            try:
-                out_data_formated ="Твое расписание на знаменатель:\n\n"
-                days_map = {"📅 Понедельник": 0, "📅 Вторник": 1, "📅 Среда": 2, "📅 Четверг": 3, "📅 Пятница": 4,
-                            "📅 Суббота": 5}
-                course, group, subgroup = DBController.get_user_data(user_id)
-
-                for key, val in days_map.items():
-                    schedule = sch_parser.get_lessons_on_day(sch_parser.find_required_col(course, group, subgroup),
-                                                             val, 1)
-                    out_data_formated += f"📅 *Расписание занятий на {key.split(' ')[-1]}:*\n\n"
-                    for key_day, val_day in schedule.items():
-                        if val_day is None or val_day.strip() == "":
-                            val_day = "— Нет пары —"
-                        out_data_formated += f"🕒 *{key_day}*\n📖 {val_day}\n\n"
-
-                bot.send_message(user_id, out_data_formated, parse_mode="Markdown")
-            except (ScheduleParserFindError, TypeError, ValueError) as e:
-                handle_error(user_id, e,
-                             "Возможно ошибка связана с обновлением на сервере. В таком случае просим Вас просто заново ввести данные. Мы сделам все возможное, чтобы это не повторилось.\n\n❌ Мы не смогли найти учебную группу с вашими данными.\n🔍 Убедитесь, что вы правильно ввели все данные.\n💡 Попробуйте ввести их еще раз.")
-                handle_profile_update(message)
-
-    @bot.message_handler(commands=['chis'])
+    @bot.message_handler(commands=['chis', 'znam'])
     def get_chis_rasp(message):
         user_id = message.from_user.id
         print(f"Запрос от {user_id}: {message.from_user.username}")
         config.users_per_day += 1
-
         if not DBController.user_exists(user_id):
             DBController.add_user(user_id)
             bot.send_message(user_id, "Привет! Выбери свой курс:", reply_markup=get_course_keyboard())
         else:
             try:
-                out_data_formated = "Твое расписание на числитель:\n\n"
+                out_data_formated = f"Твое расписание на {"числитель" if message.text == 'chis' else 'знаменатель'}:\n\n"
                 days_map = {"📅 Понедельник": 0, "📅 Вторник": 1, "📅 Среда": 2, "📅 Четверг": 3, "📅 Пятница": 4,
                             "📅 Суббота": 5}
                 course, group, subgroup = DBController.get_user_data(user_id)
 
                 for key, val in days_map.items():
                     schedule = sch_parser.get_lessons_on_day(sch_parser.find_required_col(course, group, subgroup),
-                                                             val, 0)
+                                                             val, 0 if message.text == 'chis' else 1)
                     out_data_formated += f"📅 *Расписание занятий на {key.split(' ')[-1]}:*\n\n"
                     for key_day, val_day in schedule.items():
                         if val_day is None or val_day.strip() == "":
