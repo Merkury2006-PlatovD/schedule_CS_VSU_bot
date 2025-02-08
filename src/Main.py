@@ -16,7 +16,7 @@ bot = telebot.TeleBot(token=os.getenv("BOT_TOKEN"))
 DBController.start_db_control(config.db_path)
 
 # создание парсера и подключение хэндлеров к боту
-sch_parser = ScheduleParser('parser/schedule.xlsx')
+sch_parser = ScheduleParser('src/parser/schedule.xlsx')
 register_handlers(bot, sch_parser)
 
 # старт обновлений состояний переменных из config
