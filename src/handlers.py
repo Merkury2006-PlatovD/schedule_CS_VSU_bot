@@ -100,19 +100,20 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         user_id = message.from_user.id
         print(f"Запрос от {user_id}: {message.from_user.username}")
         config.users_per_day += 1
+
         if not DBController.user_exists(user_id):
             DBController.add_user(user_id)
             bot.send_message(user_id, "Привет! Выбери свой курс:", reply_markup=get_course_keyboard())
         else:
             try:
-                out_data_formated = f"Твое расписание на {"числитель" if message.text == 'chis' else 'знаменатель'}:\n\n"
+                out_data_formated = f"Твое расписание на {"числитель" if message.text == '/chis' else 'знаменатель'}:\n\n"
                 days_map = {"📅 Понедельник": 0, "📅 Вторник": 1, "📅 Среда": 2, "📅 Четверг": 3, "📅 Пятница": 4,
                             "📅 Суббота": 5}
                 course, group, subgroup = DBController.get_user_data(user_id)
 
                 for key, val in days_map.items():
                     schedule = sch_parser.get_lessons_on_day(sch_parser.find_required_col(course, group, subgroup),
-                                                             val, 0 if message.text == 'chis' else 1)
+                                                             val, 0 if message.text == '/chis' else 1)
                     out_data_formated += f"📅 *Расписание занятий на {key.split(' ')[-1]}:*\n\n"
                     for key_day, val_day in schedule.items():
                         if val_day is None or val_day.strip() == "":
