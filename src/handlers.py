@@ -18,7 +18,9 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
             telebot.types.BotCommand("help", "Получить помощь"),
             telebot.types.BotCommand("info", "Узнать информацию о себе"),
             telebot.types.BotCommand("updateinfo", "Поменять информацию о себе"),
-            telebot.types.BotCommand("mistake", "Сообщить об ошибке в расписании")
+            telebot.types.BotCommand("mistake", "Сообщить об ошибке в расписании"),
+            telebot.types.BotCommand("znam", "Посмотреть расписание на знаменатель"),
+            telebot.types.BotCommand("chis", "Посмотреть расписание на числитель")
         ])
 
     @bot.message_handler(commands=['start'])
@@ -31,7 +33,7 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         """
         set_bot_commands_menu()
         user_id = message.from_user.id
-
+        bot.send_message(user_id, f"Неделя сейчас: {'числитель' if config.week == 0 else 'знаменатель'}")
         if not DBController.user_exists(user_id):
             DBController.add_user(user_id)
             bot.send_message(user_id, "Привет! Выбери свой курс:", reply_markup=get_course_keyboard())
@@ -64,7 +66,9 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
                                                "•  Напиши команду /start, чтобы я узнал информацию о тебе и твоем расписании\n"
                                                "•  Напиши команду /updateinfo, чтобы изменить информацию о тебе\n"
                                                "•  Напиши команду /info, чтобы узнать краткую информацию о тебе\n"
-                                               "•  Напиши команду /mistake, чтобы отправить отчет о неправильном расписании")
+                                               "•  Напиши команду /mistake, чтобы отправить отчет о неправильном расписании\n"
+                                               "•  Напиши команду /znam, чтобы посмотреть расписание на знаменатель\n"
+                                               "•  Напиши команду /chis, чтобы посмотреть расписание на числитель")
 
     @bot.message_handler(commands=['info'])
     def handle_help(message):
@@ -90,6 +94,37 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
                     bot.send_document(message.from_user.id, db_file, caption="Вот твоя база данных 📂")
             except FileNotFoundError:
                 bot.reply_to(message, "Файл базы данных не найден! ❌")
+
+    @bot.message_handler(commands=['chis', 'znam'])
+    def get_chis_rasp(message):
+        user_id = message.from_user.id
+        print(f"Запрос от {user_id}: {message.from_user.username}")
+        config.users_per_day += 1
+
+        if not DBController.user_exists(user_id):
+            DBController.add_user(user_id)
+            bot.send_message(user_id, "Привет! Выбери свой курс:", reply_markup=get_course_keyboard())
+        else:
+            try:
+                out_data_formated = f"Твое расписание на {"числитель" if message.text == '/chis' else 'знаменатель'}:\n\n"
+                days_map = {"📅 Понедельник": 0, "📅 Вторник": 1, "📅 Среда": 2, "📅 Четверг": 3, "📅 Пятница": 4,
+                            "📅 Суббота": 5}
+                course, group, subgroup = DBController.get_user_data(user_id)
+
+                for key, val in days_map.items():
+                    schedule = sch_parser.get_lessons_on_day(sch_parser.find_required_col(course, group, subgroup),
+                                                             val, 0 if message.text == '/chis' else 1)
+                    out_data_formated += f"📅 *Расписание занятий на {key.split(' ')[-1]}:*\n\n"
+                    for key_day, val_day in schedule.items():
+                        if val_day is None or val_day.strip() == "":
+                            val_day = "— Нет пары —"
+                        out_data_formated += f"🕒 *{key_day}*\n📖 {val_day}\n\n"
+
+                bot.send_message(user_id, out_data_formated, parse_mode="Markdown")
+            except (ScheduleParserFindError, TypeError, ValueError) as e:
+                handle_error(user_id, e,
+                             "Возможно ошибка связана с обновлением на сервере. В таком случае просим Вас просто заново ввести данные. Мы сделам все возможное, чтобы это не повторилось.\n\n❌ Мы не смогли найти учебную группу с вашими данными.\n🔍 Убедитесь, что вы правильно ввели все данные.\n💡 Попробуйте ввести их еще раз.")
+                handle_profile_update(message)
 
     @bot.message_handler(
         func=lambda message: message.text not in ["📅 Понедельник", "📅 Вторник", "📅 Среда", "📅 Четверг", "📅 Пятница",

@@ -20,7 +20,15 @@ def start_week_updating():
 
 def start_users_monitoring():
     def update_users_per_day():
-        print(f"Запросов сегодня: {config.users_per_day}")
+        config.users_per_week[datetime.now()] = config.users_per_day
+        if len(config.users_per_week) > 7:
+            first_key = next(iter(config.users_per_week))
+            del config.users_per_week[first_key]
+
+        print("Запросы за последнюю неделю:")
+        for key, value in config.users_per_week.items():
+            print(str(key) + ": " + str(value))
+        print(f"Запросы сегодня: {config.users_per_day}")
         config.users_per_day = 0
 
     scheduler_users_requests_per_day = BackgroundScheduler()
