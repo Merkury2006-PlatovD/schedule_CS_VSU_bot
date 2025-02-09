@@ -108,10 +108,11 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         config.users_per_day += 1
         day = days_map[message.text]
         try:
+            week_type = DBController.get_current_week_type()
             course, group, subgroup = DBController.get_user_data(user_id)
             schedule = sch_parser.get_lessons_on_day(sch_parser.find_required_col(course, group, subgroup),
-                                                     day, DBController.get_current_week_type())
-            out_data_formated = f"📅 *Расписание занятий на {message.text.split(' ')[-1]}/{'числ' if config.week == 0 else 'знам'}:*\n\n"
+                                                     day, week_type)
+            out_data_formated = f"📅 *Расписание занятий на {message.text.split(' ')[-1]}/{'числ' if week_type == 0 else 'знам'}:*\n\n"
 
             for key, val in schedule.items():
                 if val is None or val.strip() == "":
