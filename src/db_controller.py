@@ -38,7 +38,10 @@ class DBController:
 
         cls.cursor.execute("""
                INSERT OR IGNORE INTO config (key, value) VALUES (?, ?);
-           """, ("week_type", 0))
+           """, ("week_type", "0"))
+        cls.cursor.execute("""
+               INSERT OR IGNORE INTO config (key, value) VALUES (?, ?);
+           """, ("users_per_day", "0"))
         cls.conn.commit()
 
     @classmethod
@@ -109,4 +112,21 @@ class DBController:
     @classmethod
     def update_current_week_type(cls, new_week_type):
         cls.cursor.execute("UPDATE config SET value = ? WHERE key = ?", (str(new_week_type), "week_type"))
+        cls.conn.commit()
+
+    @classmethod
+    def get_users_per_day(cls):
+        cls.cursor.execute("SELECT value FROM config WHERE key = ?", ("users_per_day",))
+        return int(cls.cursor.fetchone()[0])
+
+    @classmethod
+    def increment_users_per_day_cnt(cls):
+        cls.cursor.execute("UPDATE config SET value = ? WHERE key = ?",
+                           (cls.get_users_per_day() + 1, "users_per_day"))
+        cls.conn.commit()
+
+    @classmethod
+    def set_users_per_day(cls, new_value):
+        cls.cursor.execute("UPDATE config SET value = ? WHERE key = ?",
+                           (new_value, "users_per_day"))
         cls.conn.commit()

@@ -23,8 +23,8 @@ def start_week_updating():
 
 def start_users_monitoring():
     def update_users_per_day():
-        print(f"Запросов сегодня: {config.users_per_day}")
-        config.users_per_day = 0
+        print(f"Запросов сегодня: {DBController.get_users_per_day()}")
+        DBController.set_users_per_day(0)
 
     scheduler_users_requests_per_day = BackgroundScheduler()
     scheduler_users_requests_per_day.add_job(update_users_per_day, 'cron', hour=21, minute=45)

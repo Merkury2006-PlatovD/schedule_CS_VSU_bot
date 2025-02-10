@@ -105,7 +105,7 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         days_map = {"📅 Понедельник": 0, "📅 Вторник": 1, "📅 Среда": 2, "📅 Четверг": 3, "📅 Пятница": 4, "📅 Суббота": 5}
         user_id = message.from_user.id
         print(f"Запрос от {user_id}: {message.from_user.username}")
-        config.users_per_day += 1
+        DBController.increment_users_per_day_cnt()
         day = days_map[message.text]
         try:
             week_type = DBController.get_current_week_type()
