@@ -212,9 +212,9 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         if call.data.split("_")[-1] == "1":
             course, group, subgroup = DBController.get_user_data(call.from_user.id)
             bot.send_message(5109041126,
-                             f"Ошибка в расписании у курс: {course}, группа: {group}, подгруппа: {subgroup}")
+                             f"Ошибка в расписании у курс: {course}, группа: {group}, подгруппа: {subgroup} от {call.from_user.username} c id {call.from_user.id}")
             print(
-                f"Ошибка в расписании у курс: {course}, группа: {group}, подгруппа: {subgroup} от {call.from_user.username}")
+                f"Ошибка в расписании у курс: {course}, группа: {group}, подгруппа: {subgroup} от {call.from_user.username} c id {call.from_user.id}")
             bot.send_message(call.from_user.id,
                              "Спасибо! Ваша жалоба успешно отправлена, и мои разработчики рассмотрят её в ближайшее время.")
         else:
