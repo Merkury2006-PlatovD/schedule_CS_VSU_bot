@@ -33,7 +33,7 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         """
         set_bot_commands_menu()
         user_id = message.from_user.id
-        bot.send_message(user_id, f"Неделя сейчас: {'числитель' if config.week == 0 else 'знаменатель'}")
+        bot.send_message(user_id, f"Неделя сейчас: {'числитель' if DBController.get_current_week_type() == 0 else 'знаменатель'}")
         if not DBController.user_exists(user_id):
             DBController.add_user(user_id)
             bot.send_message(user_id, "Привет! Выбери свой курс:", reply_markup=get_course_keyboard())
