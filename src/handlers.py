@@ -33,7 +33,8 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
         """
         set_bot_commands_menu()
         user_id = message.from_user.id
-        bot.send_message(user_id, f"Неделя сейчас: {'числитель' if DBController.get_current_week_type() == 0 else 'знаменатель'}")
+        bot.send_message(user_id,
+                         f"Неделя сейчас: {'числитель' if DBController.get_current_week_type() == 0 else 'знаменатель'}")
         if not DBController.user_exists(user_id):
             DBController.add_user(user_id)
             bot.send_message(user_id, "Привет! Выбери свой курс:", reply_markup=get_course_keyboard())
@@ -98,6 +99,20 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
     @bot.message_handler(commands=['getUsersPerDay'])
     def handle_users_per_day_request(message):
         bot.send_message(message.from_user.id, f"Запросов за текущий день {DBController.get_users_per_day()}")
+
+    @bot.message_handler(commands=['sendMessage'])
+    def handle_send_message(message):
+        if str(message.from_user.id) in [os.getenv("ADMIN_TG_ID1"), os.getenv("ADMIN_TG_ID2")]:
+            args = message.text.split(maxsplit=2)
+            if len(args) < 3:
+                bot.reply_to(message, "⚠ Использование: /sendMessage [id пользователя] \"сообщение\"")
+                return
+
+            user_id = int(args[1])
+            user_message = args[2]
+
+            bot.send_message(user_id, user_message)
+            bot.reply_to(message, f"✅ Сообщение отправлено пользователю {user_id}")
 
     @bot.message_handler(commands=['chis', 'znam'])
     def handle_chis_znam_shedule(message):
