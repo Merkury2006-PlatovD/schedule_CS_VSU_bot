@@ -87,7 +87,7 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
 
     # специальные хэндлеры для использования администратором
     @bot.message_handler(commands=['getDB'])
-    def get_database(message):
+    def handle_database_request(message):
         if str(message.from_user.id) in [os.getenv("ADMIN_TG_ID1"), os.getenv("ADMIN_TG_ID2")]:
             try:
                 with open(config.db_path, "rb") as db_file:
@@ -95,11 +95,15 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
             except FileNotFoundError:
                 bot.reply_to(message, "Файл базы данных не найден! ❌")
 
+    @bot.message_handler(commands=['getUsersPerDay'])
+    def handle_users_per_day_request(message):
+        bot.send_message(message.from_user.id, f"Запросов за текущий день {DBController.get_users_per_day()}")
+
     @bot.message_handler(commands=['chis', 'znam'])
-    def get_chis_rasp(message):
+    def handle_chis_znam_shedule(message):
         user_id = message.from_user.id
         print(f"Запрос от {user_id}: {message.from_user.username}")
-        config.users_per_day += 1
+        DBController.increment_users_per_day_cnt()
 
         if not DBController.user_exists(user_id):
             DBController.add_user(user_id)
