@@ -4,7 +4,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 import config
 from db_controller import DBController
-from parser.excell_loader import GoogleSheetDownloader
+from parser.excell_loader import download_and_update
 
 
 def start_week_updating():
@@ -41,9 +41,9 @@ def start_users_monitoring():
 
 
 def start_excell_update():
-    google_sheet_downloader = GoogleSheetDownloader(
-        file_id='1ryzzYpl9QN546fLQWq0lvxULcW9ygO2A5qrkDwjtNhQ'
-    )
+    # google_sheet_downloader = GoogleSheetDownloader(
+    #     file_id='1ryzzYpl9QN546fLQWq0lvxULcW9ygO2A5qrkDwjtNhQ'
+    # )
     scheduler_excell_table_update = BackgroundScheduler()
-    scheduler_excell_table_update.add_job(google_sheet_downloader.update_table, 'interval', minutes=10)
+    scheduler_excell_table_update.add_job(download_and_update, 'interval', minutes=1)
     scheduler_excell_table_update.start()
