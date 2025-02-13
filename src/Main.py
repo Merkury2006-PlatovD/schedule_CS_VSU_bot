@@ -7,7 +7,7 @@ import config
 from db_controller import DBController
 from handlers import register_handlers
 from parser.excell_converter import ScheduleParser
-from updaters import start_week_updating, start_users_monitoring
+from updaters import start_week_updating, start_users_monitoring, start_excell_update
 
 # токен бота
 bot = telebot.TeleBot(token=os.getenv("BOT_TOKEN"))
@@ -19,9 +19,10 @@ DBController.start_db_control(config.db_path)
 sch_parser = ScheduleParser('src/parser/schedule.xlsx')
 register_handlers(bot, sch_parser)
 
-# старт обновлений состояний переменных из config
+# старт обновления основных данных
 start_week_updating()
 start_users_monitoring()
+start_excell_update()
 
 
 def main():
