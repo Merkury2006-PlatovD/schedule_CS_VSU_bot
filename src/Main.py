@@ -13,7 +13,7 @@ from updaters import start_week_updating, start_users_monitoring, start_excell_u
 bot = telebot.TeleBot(token=os.getenv("BOT_TOKEN"))
 
 # подключение бд
-# DBController.start_db_control(config.db_path)
+DBController.start_db_control(config.db_path)
 
 # создание парсера и подключение хэндлеров к боту
 sch_parser = ScheduleParser('src/parser/schedule.xlsx')

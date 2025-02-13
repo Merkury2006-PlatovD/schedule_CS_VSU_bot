@@ -1,3 +1,4 @@
+import json
 import os
 
 from google.oauth2 import service_account
@@ -51,8 +52,12 @@ import openpyxl
 #             print(f"Error during formatting: {e}")
 def update_excell():
     SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-    creds = service_account.Credentials.from_service_account_file(
-        'src/parser/vsu-cs-schedule-bot-21aef2c144f7.json', scopes=SCOPES)
+    credentials_json = os.getenv("GOOGLE_CREDENTIALS")
+
+    creds_dict = json.loads(credentials_json)
+    print(creds_dict)
+    creds = service_account.Credentials.from_service_account_info(
+        creds_dict, scopes=SCOPES)
 
     # Подключаемся к API Google Drive
     drive_service = build('drive', 'v3', credentials=creds)
@@ -88,6 +93,7 @@ def format_fresh_table():
         print("Table updated and saved as 'src/parser/schedule.xlsx'.")
     except Exception as e:
         print(f"Error during formatting: {e}")
+
 
 def download_and_update():
     update_excell()
