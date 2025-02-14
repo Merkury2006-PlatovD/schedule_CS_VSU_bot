@@ -44,11 +44,11 @@ class ScheduleParser:
 
     def get_lessons_on_day(self, column, day, week):
         time_lesson_gen = (x for x in self.time_lessons)
-        col_values = [self._get_merged_cell_value(row[column - 1]) for row in self.sheet.iter_rows(min_row=3)]
+        col_values = [self._get_merged_cell_value(row[column - 1]) for row in self.sheet.iter_rows(min_row=5)]
         skip = day * 16
         out_schedule = {}
 
-        for i in range(skip + week, len(col_values), 2):
+        for i in range(skip + week + day, len(col_values), 2):
             try:
                 out_schedule[next(time_lesson_gen)] = col_values[i]
             except StopIteration:

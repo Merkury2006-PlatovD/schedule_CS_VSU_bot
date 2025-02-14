@@ -81,20 +81,5 @@ def update_excell():
         print(f"Download {int(status.progress() * 100)}%.")
 
 
-def format_fresh_table():
-    try:
-        file_path = 'src/parser/schedule.xlsx'
-        wb = openpyxl.load_workbook(file_path)
-        ws = wb.active
-        rows_to_delete = [3, 4, 21, 38, 55, 72, 89]
-        for row in sorted(rows_to_delete, reverse=True):
-            ws.delete_rows(row)
-        wb.save('src/parser/schedule.xlsx')
-        print("Table updated and saved as 'src/parser/schedule.xlsx'.")
-    except Exception as e:
-        print(f"Error during formatting: {e}")
-
-
 def download_and_update():
     update_excell()
-    format_fresh_table()
