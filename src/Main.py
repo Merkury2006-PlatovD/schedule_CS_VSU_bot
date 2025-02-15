@@ -4,9 +4,9 @@ import time
 import telebot
 
 import config
+from botcontroller import BotController
 from db_controller import DBController
-from handlers import register_handlers
-from parser.excell_converter import ScheduleParser
+from parser.excell_loader import download_and_update
 from updaters import start_week_updating, start_users_monitoring, start_excell_update
 
 # токен бота
@@ -16,22 +16,18 @@ bot = telebot.TeleBot(token=os.getenv("BOT_TOKEN"))
 DBController.start_db_control(config.db_path)
 
 
-# создание парсера и подключение хэндлеров к боту
-def refresh_bot():
-    sch_parser = ScheduleParser('src/parser/schedule.xlsx')
-    register_handlers(bot, sch_parser)
-
-
-refresh_bot()
-# старт обновления основных данных
-start_week_updating()
-start_users_monitoring()
-start_excell_update()
-
-
 def main():
     while True:
         try:
+            BotController.set_bot(bot)
+            download_and_update()
+            BotController.refresh_bot()
+
+            # старт обновления основных данных
+            start_week_updating()
+            start_users_monitoring()
+            start_excell_update()
+
             print("Бот запущен")
             bot.polling(none_stop=True, timeout=60, long_polling_timeout=60)
         except Exception as e:
