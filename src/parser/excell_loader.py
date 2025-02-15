@@ -1,11 +1,10 @@
+import io
 import json
 import os
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
-import io
-import openpyxl
 
 
 # class GoogleSheetDownloader:
@@ -55,7 +54,6 @@ def update_excell():
     credentials_json = os.getenv("GOOGLE_CREDENTIALS")
 
     creds_dict = json.loads(credentials_json)
-    print(creds_dict)
     creds = service_account.Credentials.from_service_account_info(
         creds_dict, scopes=SCOPES)
 

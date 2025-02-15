@@ -44,6 +44,11 @@ def start_excell_update():
     # google_sheet_downloader = GoogleSheetDownloader(
     #     file_id='1ryzzYpl9QN546fLQWq0lvxULcW9ygO2A5qrkDwjtNhQ'
     # )
+    def update_parser_and_table():
+        from Main import refresh_bot
+        download_and_update()
+        refresh_bot()
+
     scheduler_excell_table_update = BackgroundScheduler()
-    scheduler_excell_table_update.add_job(download_and_update, 'interval', minutes=1)
+    scheduler_excell_table_update.add_job(update_parser_and_table, 'interval', minutes=10)
     scheduler_excell_table_update.start()

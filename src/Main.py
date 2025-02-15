@@ -15,10 +15,14 @@ bot = telebot.TeleBot(token=os.getenv("BOT_TOKEN"))
 # подключение бд
 DBController.start_db_control(config.db_path)
 
-# создание парсера и подключение хэндлеров к боту
-sch_parser = ScheduleParser('src/parser/schedule.xlsx')
-register_handlers(bot, sch_parser)
 
+# создание парсера и подключение хэндлеров к боту
+def refresh_bot():
+    sch_parser = ScheduleParser('src/parser/schedule.xlsx')
+    register_handlers(bot, sch_parser)
+
+
+refresh_bot()
 # старт обновления основных данных
 start_week_updating()
 start_users_monitoring()
