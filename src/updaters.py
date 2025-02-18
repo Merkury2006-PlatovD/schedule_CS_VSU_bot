@@ -3,7 +3,9 @@ from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import config
+from botcontroller import BotController
 from db_controller import DBController
+from parser.excell_loader import download_and_update
 
 
 def start_week_updating():
@@ -37,3 +39,13 @@ def start_users_monitoring():
     scheduler_users_requests_per_day = BackgroundScheduler()
     scheduler_users_requests_per_day.add_job(update_users_per_day, 'cron', hour=21, minute=45)
     scheduler_users_requests_per_day.start()
+
+
+def start_excell_update():
+    def update_parser_and_table():
+        download_and_update()
+        BotController.refresh_bot()
+
+    scheduler_excell_table_update = BackgroundScheduler()
+    scheduler_excell_table_update.add_job(update_parser_and_table, 'interval', minutes=60)
+    scheduler_excell_table_update.start()
