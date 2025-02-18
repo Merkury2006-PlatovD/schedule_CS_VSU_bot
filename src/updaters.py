@@ -47,5 +47,5 @@ def start_excell_update():
         BotController.refresh_bot()
 
     scheduler_excell_table_update = BackgroundScheduler()
-    scheduler_excell_table_update.add_job(update_parser_and_table, 'interval', minutes=1)
+    scheduler_excell_table_update.add_job(update_parser_and_table, 'interval', minutes=60)
     scheduler_excell_table_update.start()

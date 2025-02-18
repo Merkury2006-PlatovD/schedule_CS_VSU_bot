@@ -1,13 +1,10 @@
 import datetime
-import io
 import json
 import os
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
-
-import config
 
 
 def update_excell():
@@ -24,7 +21,6 @@ def update_excell():
 
     temp_path = "/tmp/schedule.xlsx"
 
-    # Если файл уже существует, удаляем его
     if os.path.exists(temp_path):
         os.remove(temp_path)
         print(f"Удалён старый файл: {temp_path}")
