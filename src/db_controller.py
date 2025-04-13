@@ -134,4 +134,4 @@ class DBController:
 
     @classmethod
     def extra_functionality(cls):
-        cls.update_current_week_type(1)
+        pass
