@@ -15,6 +15,7 @@ class DBController:
         cls.cursor = cls.conn.cursor()
 
         cls.init_tables_if_not_exists()
+        cls.extra_functionality()
 
     @classmethod
     def init_tables_if_not_exists(cls):
@@ -130,3 +131,7 @@ class DBController:
         cls.cursor.execute("UPDATE config SET value = ? WHERE key = ?",
                            (new_value, "users_per_day"))
         cls.conn.commit()
+
+    @classmethod
+    def extra_functionality(cls):
+        cls.update_current_week_type(1)
