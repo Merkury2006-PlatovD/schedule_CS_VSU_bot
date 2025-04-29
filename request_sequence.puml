@@ -1,0 +1,37 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+'actor User as u #FFF
+participant "Bot Service" as bs #FFF
+boundary "Telegram API" as tg #FFF
+participant "Parser Service" as ps #FFF
+participant "Database Service" as ds #FFF
+database DB as db #FFF
+autonumber
+loop bot.polling(...)
+    bs -> tg: GET запрос
+    activate bs
+    activate tg
+    tg --> bs: ответ с данными о запросах
+    deactivate tg
+    alt Есть подходящий обработчик
+        bs -> ds :Запрос на поиск пользователя в БД
+        activate ds
+        ds -> db:Непосредственное обращение к БД
+        activate db
+        db --> ds:Данные пользователя
+        deactivate db
+        ds --> bs:Данные пользователя
+        deactivate ds
+        bs -> ps:Парсинг расписания по полученным данным
+        activate ps
+        ps --> bs:Расписание
+        deactivate ps
+        bs -> bs:Формирование ответа
+        bs --> tg: POST ответ
+    else Нет подходящего обработчика
+        bs --> tg: Отправка инструкции
+        deactivate bs
+    end
+end
+@enduml

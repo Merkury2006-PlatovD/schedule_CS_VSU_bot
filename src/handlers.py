@@ -72,7 +72,7 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
                                                "•  Напиши команду /chis, чтобы посмотреть расписание на числитель")
 
     @bot.message_handler(commands=['info'])
-    def handle_help(message):
+    def handle_info(message):
         user_id = message.from_user.id
         course, group, subgroup = DBController.get_user_data(user_id)
         bot.send_message(message.from_user.id, "Информация о тебе: \n"

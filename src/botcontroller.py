@@ -9,6 +9,7 @@ class BotController:
     def set_bot(cls, bot):
         cls.bot = bot
 
+
     @classmethod
     def refresh_bot(cls):
         sch_parser = ScheduleParser('/tmp/schedule.xlsx')
