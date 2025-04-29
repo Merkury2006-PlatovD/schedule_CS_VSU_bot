@@ -2,6 +2,7 @@ import os
 
 import telebot
 from telebot import TeleBot
+from telebot.types import InputFile
 
 from db_controller import DBController
 from errors.errors import ScheduleParserFindError
@@ -9,6 +10,8 @@ from parser.excell_converter import ScheduleParser
 from keyboard_generators import get_subgroup_keyboard, get_group_keyboard, get_course_keyboard, get_persistent_keyboard, \
     get_mistake_report_keyboard
 import config
+
+FILE_PATH = "/tmp/schedule.xlsx"
 
 
 def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
@@ -22,6 +25,15 @@ def register_handlers(bot: TeleBot, sch_parser: ScheduleParser):
             telebot.types.BotCommand("znam", "Посмотреть расписание на знаменатель"),
             telebot.types.BotCommand("chis", "Посмотреть расписание на числитель")
         ])
+
+    @bot.message_handler(commands=['getFile'])
+    def get_file_handle(call):
+        with open(FILE_PATH, "rb") as file:
+            bot.send_document(
+                chat_id=call.from_user.id,
+                document=InputFile(file),
+                caption="Вот ваш файл! 📄"
+            )
 
     @bot.message_handler(commands=['start'])
     def handle_start(message):
