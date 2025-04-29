@@ -42,10 +42,11 @@ def start_users_monitoring():
 
 
 def start_excell_update():
-    def update_parser_and_table():
-        download_and_update()
-        BotController.refresh_bot()
+    pass
+    # def update_parser_and_table():
+    #     download_and_update()
+    #     BotController.refresh_bot()
 
-    scheduler_excell_table_update = BackgroundScheduler()
-    scheduler_excell_table_update.add_job(update_parser_and_table, 'interval', minutes=60)
-    scheduler_excell_table_update.start()
+    # scheduler_excell_table_update = BackgroundScheduler()
+    # scheduler_excell_table_update.add_job(update_parser_and_table, 'interval', minutes=60)
+    # scheduler_excell_table_update.start()

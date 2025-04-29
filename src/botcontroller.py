@@ -12,7 +12,7 @@ class BotController:
 
     @classmethod
     def refresh_bot(cls):
-        sch_parser = ScheduleParser('/tmp/schedule.xlsx')
+        sch_parser = ScheduleParser('src/schedule.xlsx')
         cls.bot.message_handlers.clear()
         cls.bot.callback_query_handlers.clear()
         cls.bot.inline_handlers.clear()

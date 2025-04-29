@@ -10,8 +10,9 @@ class ScheduleParser:
 
     def __init__(self, filename):
         self.wb = openpyxl.load_workbook(filename)
-        self.sheet = self.wb.active
+        self.sheet = self.wb.worksheets[2]
         self.all_courses = self._parse_headers()
+        print(self.all_courses)
 
     def _get_merged_cell_value(self, cell):
         if isinstance(cell, MergedCell):
